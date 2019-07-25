@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 
 class FileManager:
     
-    filePath = ""
-    
     def getDataFrame(self, filePath):
         file = open(filePath, "r")
         # This skips the first lane

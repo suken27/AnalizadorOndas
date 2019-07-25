@@ -1,0 +1,70 @@
+#:kivy 1.11.1
+
+<MainWidget>:
+
+	loadFileButton: load_file_button
+
+	plotContainer: plot_container
+	drawButton: draw_button
+
+	title: 'Wave Analizer'
+	orientation: 'vertical'	
+		
+	ActionBar:
+			
+		ActionView:
+			use_separator: True
+				
+			ActionPrevious:
+				title: 'Wave Analizer'
+				with_previous: False
+					
+			ActionOverflow:
+				
+			ActionButton:
+				id: load_file_button
+				text: 'Load File'
+				on_press: root.showLoadFilePopup()
+			
+	BoxLayout:
+		
+		id: plot_container
+		orientation: 'vertical'
+        
+    BoxLayout:
+    
+    	orientation: 'horizontal'
+    	
+    	Label:
+    		text: 'Plot tools here'
+    		
+    	Button:
+    		id: draw_button
+    		text: 'Draw'
+    		
+
+<loadFilePopup>:
+
+    title: "Select File"
+    size_hint: .9, .9
+    BoxLayout:
+    
+        orientation: "vertical"
+        
+        FileChooser:
+        	id: filechooser
+            FileChooserIconLayout
+
+        BoxLayout:
+            size_hint: (1, 0.1)
+            
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
+                
+            Button:
+                text: "Load"
+                on_release: root.loadFile(filechooser.selection)
+                disabled: True if filechooser.selection==[] else False
+                

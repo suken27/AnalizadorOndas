@@ -1,9 +1,6 @@
-from kivy.app import App
-from kivy.uix.button import Button
+# _*_ coding: utf-8 _*_
 
-class TestApp(App):
-    def build(self):
-        return Button(text="Hello World")
-    
+from WaveApp import WaveApp
 
-TestApp().run()
+if __name__ == "__main__":
+    WaveApp().run()
