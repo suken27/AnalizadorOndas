@@ -6,7 +6,7 @@ import numpy as np
 
 class PlotHandler:
     
-    def printPlotTest(self, dataFrame):
+    def getPlotTest(self, dataFrame):
         plt.plot(dataFrame["time"], dataFrame["value"])
         plt.xlabel("Hora")
         plt.ylabel("Presión intracraneal")
@@ -18,8 +18,7 @@ class PlotHandler:
         # the abs method is used to make sure that all numbers are positive
         # because x and y axis of an axes maybe inversed.
         ax.set_aspect(abs((xright-xleft)/(ybottom-ytop))*ratio)
-        
-        plt.show()
+        return plt.gcf()
         
     def getTestFigure(self):
         fig = mpl.figure.Figure(figsize=(2, 2))

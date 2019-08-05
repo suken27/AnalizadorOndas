@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 
 class FileManager:
     
+    # TODO add function to check if the provided file is a valid pressure recording file.
+    
     def getDataFrame(self, filePath):
         file = open(filePath, "r")
         # This skips the first lane

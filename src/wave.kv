@@ -45,6 +45,8 @@
 
 <loadFilePopup>:
 
+	loadFileButton: load_file_button
+
     title: "Select File"
     size_hint: .9, .9
     BoxLayout:
@@ -64,6 +66,7 @@
                 on_release: root.dismiss()
                 
             Button:
+            	id: load_file_button
                 text: "Load"
                 on_release: root.loadFile(filechooser.selection)
                 disabled: True if filechooser.selection==[] else False
