@@ -1,6 +1,7 @@
 # _*_ coding: utf-8 _*_
 
 from kivy.app import App
+from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
@@ -13,23 +14,17 @@ def drawPlot(instance):
     print("TODO")
     
 def onScroll(event):
-    print('scroll event from mpl ', event.x, event.y, event.step)
+    Logger.debug("Event: Scroll event from mpl %d %d %d %s", event.x, event.y, event.step, event.button)
     
     axes = event.canvas.figure.gca()
     
     # if the mouse is not inside the figure, do nothing
     if event.inaxes != axes: return
     
-    # NOTA EL ZOOM FALLA PORQUE LOS DATOS EN EL EJE X SON DEMASIADO PRECISOS Y LOS FALLOS DE PRECISION AFECTAN MUCHO, EN EL EJE Y FUNCIONA BIEN
-    
-    # get the current x and y limits
+    # get the current x limit
     cur_xlim = axes.get_xlim()
-    cur_ylim = axes.get_ylim()
-    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-    print('lims ', cur_xlim[0], cur_xlim[1], cur_ylim[0], cur_ylim[1])
+    cur_xrange = (cur_xlim[1] - cur_xlim[0]) * 0.5
     xdata = event.xdata # get event x location
-    ydata = event.ydata # get event y location
     if event.button == 'up':
         # deal with zoom in
         scale_factor = 1/2.
@@ -39,11 +34,9 @@ def onScroll(event):
     else:
         # deal with something that should never happen
         scale_factor = 1
+        Logger.error("Event: A scroll event was captured but it was not scroll up neither scroll down.")
     # set new limits
-    axes.set_xlim([xdata - cur_xrange,
-                xdata + cur_xrange])
-    axes.set_ylim([ydata - cur_yrange,
-                ydata + cur_yrange])
+    axes.set_xlim([xdata - cur_xrange * scale_factor, xdata + cur_xrange * scale_factor])
     event.canvas.draw() # force re-draw
     
 def onPress():
@@ -74,11 +67,15 @@ class MainWidget(BoxLayout):
         fig = PlotHandler().getPlotTest(dataFrame)
         wid = FigureCanvas(fig)
         fig.canvas.mpl_connect('scroll_event', onScroll)
+        self.plotContainer.clear_widgets()
         self.plotContainer.add_widget(wid)
-        print("ALLRIGHT")
+        Logger.info("File Load: File '%s' loaded successfully.", file[0])
         
     def showLoadFilePopup(self):
         LoadFilePopup(caller=self).open()
+        
+    def loadDebugFile(self):
+        self.loadFile(["C:\\Users\\Juanjo\\Google Drive\\MASTER\\Alumno Interno\\Sistema Nuevo\\Datos Monitorizacion\\USB SANDRA\\KLH Hab 205 12Feb2019.txt"])
 
 class WaveApp(App):
     

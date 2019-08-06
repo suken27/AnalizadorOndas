@@ -19,21 +19,34 @@ class FileManager:
         
         times = []
         values = []
+        alternativetimes = []
+        
+        counter = 0
+        # Each 'skipCounter' lanes, just one gets read, the others are ignored because of the impact of the excess of precision in reading time
+        skipCounter = 10
+        
+        i = 0
         
         for x in file:
-            lane = file.readline().split("\t")
-            exactTime = lane[0].split(",")
-            exactTimeSeconds = int(exactTime[0])
-            exactTimeMilliseconds = int(exactTime[1])
-            # Calculates the exact time when the pressure value was recorded
-            times.append(startingTime + timedelta(seconds=exactTimeSeconds, milliseconds=exactTimeMilliseconds))
-            values.append(int(lane[1]))
+            counter = counter + 1
+            if(counter == skipCounter):
+                i = i + 1
+                lane = file.readline().split("\t")
+                exactTime = lane[0].split(",")
+                exactTimeSeconds = int(exactTime[0])
+                exactTimeMilliseconds = int(exactTime[1])
+                # Calculates the exact time when the pressure value was recorded
+                times.append(startingTime + timedelta(seconds=exactTimeSeconds, milliseconds=exactTimeMilliseconds))
+                values.append(int(lane[1]))
+                alternativetimes.append(i)
+                counter = 0
         
         file.close()
         
         dataFrame = pd.DataFrame({
             'time': times,
-            'value': values
+            'value': values,
+            'alternativetime': alternativetimes
         })
         
         return dataFrame

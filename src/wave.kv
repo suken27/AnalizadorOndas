@@ -3,6 +3,7 @@
 <MainWidget>:
 
 	loadFileButton: load_file_button
+	fastLoadFileButton: fast_load_file_button
 
 	plotContainer: plot_container
 	drawButton: draw_button
@@ -20,6 +21,11 @@
 				with_previous: False
 					
 			ActionOverflow:
+			
+			ActionButton:
+				id: fast_load_file_button
+				text: 'Load Debug File'
+				on_press: root.loadDebugFile()
 				
 			ActionButton:
 				id: load_file_button
