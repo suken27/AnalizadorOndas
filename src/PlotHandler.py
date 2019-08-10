@@ -2,24 +2,19 @@
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.dates as mdates
 import numpy as np
 
 class PlotHandler:
     
     def getPlotTest(self, dataFrame):
-        plt.plot(dataFrame["alternativetime"], dataFrame["value"], linewidth=0.5)
+        plt.plot(dataFrame["time"], dataFrame["value"], linewidth=0.5)
         plt.xlabel("Hora")
         plt.ylabel("Presión intracraneal")
         plt.grid()
         ax = plt.gca()
         ax.set(autoscale_on=False)
         
-        ratio = 0.1
-        xleft, xright = ax.get_xlim()
-        ybottom, ytop = ax.get_ylim()
-        # the abs method is used to make sure that all numbers are positive
-        # because x and y axis of an axes maybe inversed.
-        # ax.set_aspect(abs((xright-xleft)/(ybottom-ytop))*ratio)
         return plt.gcf()
         
     def getTestFigure(self):

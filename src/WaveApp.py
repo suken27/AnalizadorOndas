@@ -9,39 +9,6 @@ from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 
 from FileManager import FileManager
 from PlotHandler import PlotHandler
-
-def drawPlot(instance):
-    print("TODO")
-    
-def onScroll(event):
-    Logger.debug("Event: Scroll event from mpl %d %d %d %s", event.x, event.y, event.step, event.button)
-    
-    axes = event.canvas.figure.gca()
-    
-    # if the mouse is not inside the figure, do nothing
-    if event.inaxes != axes: return
-    
-    # get the current x limit
-    cur_xlim = axes.get_xlim()
-    cur_xrange = (cur_xlim[1] - cur_xlim[0]) * 0.5
-    xdata = event.xdata # get event x location
-    if event.button == 'up':
-        # deal with zoom in
-        scale_factor = 1/2.
-    elif event.button == 'down':
-        # deal with zoom out
-        scale_factor = 2.
-    else:
-        # deal with something that should never happen
-        scale_factor = 1
-        Logger.error("Event: A scroll event was captured but it was not scroll up neither scroll down.")
-    # set new limits
-    axes.set_xlim([xdata - cur_xrange * scale_factor, xdata + cur_xrange * scale_factor])
-    event.canvas.draw() # force re-draw
-    
-def onPress():
-    pass
-
     
 class LoadFilePopup(Popup):
     
@@ -58,15 +25,21 @@ class LoadFilePopup(Popup):
 class MainWidget(BoxLayout):
     
     loadFileButton = ObjectProperty(0)
-    
     plotContainer = ObjectProperty(0)
     drawButton = ObjectProperty(0)
+    fig = None
+    press = None
     
     def loadFile(self, file):
+        if self.fig != None:
+            self.fig.clear()
         dataFrame = FileManager().getDataFrame(file[0])
-        fig = PlotHandler().getPlotTest(dataFrame)
-        wid = FigureCanvas(fig)
-        fig.canvas.mpl_connect('scroll_event', onScroll)
+        self.fig = PlotHandler().getPlotTest(dataFrame)
+        wid = FigureCanvas(self.fig)
+        self.fig.canvas.mpl_connect('scroll_event', self.onScroll)
+        self.fig.canvas.mpl_connect('button_press_event', self.onPress)
+        self.fig.canvas.mpl_connect('button_release_event', self.onRelease)
+        self.fig.canvas.mpl_connect('motion_notify_event', self.onMotion)
         self.plotContainer.clear_widgets()
         self.plotContainer.add_widget(wid)
         Logger.info("File Load: File '%s' loaded successfully.", file[0])
@@ -76,6 +49,110 @@ class MainWidget(BoxLayout):
         
     def loadDebugFile(self):
         self.loadFile(["C:\\Users\\Juanjo\\Google Drive\\MASTER\\Alumno Interno\\Sistema Nuevo\\Datos Monitorizacion\\USB SANDRA\\KLH Hab 205 12Feb2019.txt"])
+        
+    def zoomIn(self):
+        if self.fig == None:
+            return
+        self.zoom(self.fig.canvas, 1/2)
+        
+    def zoomOut(self):
+        if self.fig == None:
+            return
+        self.zoom(self.fig.canvas, 2)
+    
+    def onScroll(self, event):
+        
+        # if the mouse is not inside the figure, do nothing
+        axes = event.canvas.figure.gca()
+        if event.inaxes != axes: return
+        
+        Logger.debug("Event: Scroll event from mpl. x = %d, y = %d, step = %d, button = %s", event.x, event.y, event.step, event.button)
+        
+        if event.button == 'up':
+            # deal with zoom in
+            scale_factor = 1/2.
+        elif event.button == 'down':
+            # deal with zoom out
+            scale_factor = 2.
+        else:
+            # deal with something that should never happen
+            scale_factor = 1
+            Logger.error("Event: A scroll event was captured but it was not scroll up neither scroll down.")
+        
+        # get event x location
+        xdata = event.xdata
+        self.zoom(event.canvas, scale_factor, xcenter = xdata)
+       
+    def zoom(self, canvas, scale_factor, xcenter = None):
+        
+        axes = canvas.figure.gca()
+        
+        # get the current x limit
+        cur_xlim = axes.get_xlim()
+        cur_xrange = (cur_xlim[1] - cur_xlim[0]) * 0.5
+        if(xcenter == None):
+            xcenter = cur_xlim[0] + cur_xrange
+            
+        # set new limits
+        axes.set_xlim([xcenter - cur_xrange * scale_factor, xcenter + cur_xrange * scale_factor])
+        
+        # force re-draw
+        canvas.draw()
+        
+    def onPress(self, event):
+        
+        # if the mouse is not inside the figure, do nothing
+        axes = event.canvas.figure.gca()
+        if event.inaxes != axes: 
+            return
+        
+        # if the button is not the mouse left button, do nothing
+        # 1 stands for MouseButton.LEFT
+        if event.button != 1: 
+            return
+        
+        Logger.debug("Event: Button press event from mpl. x = %d, y = %d, button = %s", event.x, event.y, event.button)
+        
+        self.press = event.xdata, event.ydata
+    
+    def onRelease(self, event):
+        
+        # if the mouse is not inside the figure, do nothing
+        axes = event.canvas.figure.gca()
+        if event.inaxes != axes: return
+        
+        # if the button is not the mouse left button, do nothing
+        # 1 stands for MouseButton.LEFT
+        if event.button != 1: 
+            return
+        
+        Logger.debug("Event: Button release event from mpl. x = %d, y = %d, button = %s", event.x, event.y, event.button)
+        
+        self.press = None
+        self.fig.canvas.draw()
+    
+    def onMotion(self, event):
+        
+        # if the mouse is not inside the figure, do nothing
+        axes = event.canvas.figure.gca()
+        if event.inaxes != axes: 
+            return
+        
+        # if the mouse was not pressed, do nothing
+        if self.press == None:
+            return
+        
+        Logger.debug("Event: Button motion event from mpl. x = %d, y = %d, button = %s", event.xdata, event.ydata, event.button)
+
+        
+        prevx, prevy = self.press
+        difx = prevx - event.xdata
+
+        # set new limits
+        xlim = axes.get_xlim()   
+        axes.set_xlim([xlim[0] + difx, xlim[1] + difx])
+        
+        self.fig.canvas.draw()
 
 class WaveApp(App):
     
@@ -83,6 +160,5 @@ class WaveApp(App):
     
     def build(self):
         mainwidget = MainWidget()
-        mainwidget.drawButton.bind(on_press=drawPlot)
         return mainwidget
     

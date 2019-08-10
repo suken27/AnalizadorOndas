@@ -23,7 +23,7 @@ class FileManager:
         
         counter = 0
         # Each 'skipCounter' lanes, just one gets read, the others are ignored because of the impact of the excess of precision in reading time
-        skipCounter = 10
+        skipCounter = 40
         
         i = 0
         
