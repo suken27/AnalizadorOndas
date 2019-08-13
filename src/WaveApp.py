@@ -9,6 +9,7 @@ from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 
 from FileManager import FileManager
 from PlotHandler import PlotHandler
+from Analyzer import Analyzer
     
 class LoadFilePopup(Popup):
     
@@ -33,8 +34,8 @@ class MainWidget(BoxLayout):
     def loadFile(self, file):
         if self.fig != None:
             self.fig.clear()
-        dataFrame = FileManager().getDataFrame(file[0])
-        self.fig = PlotHandler().getPlotTest(dataFrame)
+        data_frame = FileManager().getDataFrame(file[0])
+        self.fig = PlotHandler().getPlotTest(data_frame)
         wid = FigureCanvas(self.fig)
         self.fig.canvas.mpl_connect('scroll_event', self.onScroll)
         self.fig.canvas.mpl_connect('button_press_event', self.onPress)
@@ -43,6 +44,7 @@ class MainWidget(BoxLayout):
         self.plotContainer.clear_widgets()
         self.plotContainer.add_widget(wid)
         Logger.info("File Load: File '%s' loaded successfully.", file[0])
+        Analyzer().analyze(data_frame)
         
     def showLoadFilePopup(self):
         LoadFilePopup(caller=self).open()
