@@ -7,6 +7,9 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvas
 
+import matplotlib.patches as patches
+import matplotlib.dates as mdates
+
 from FileManager import FileManager
 from PlotHandler import PlotHandler
 from Analyzer import Analyzer
@@ -44,7 +47,15 @@ class MainWidget(BoxLayout):
         self.plotContainer.clear_widgets()
         self.plotContainer.add_widget(wid)
         Logger.info("File Load: File '%s' loaded successfully.", file[0])
-        Analyzer().analyze(data_frame)
+        # detects A-waves
+        detections = Analyzer().analyze(data_frame)
+        # for each A-wave detection draws a rectangle around it
+        for detection in detections:
+            start = mdates.date2num(detection[0])
+            end = mdates.date2num(detection[1])
+            width = end - start
+            new_rectangle = patches.Rectangle((start, detection[2]), width, detection[3], linewidth = 1, edgecolor = 'r', facecolor = 'none')
+            self.fig.gca().add_patch(new_rectangle)
         
     def showLoadFilePopup(self):
         LoadFilePopup(caller=self).open()

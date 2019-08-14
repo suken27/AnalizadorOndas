@@ -60,6 +60,9 @@ class Analyzer:
         # main loop
         detections = []
         detection = None
+        min_pressure = None
+        max_pressure = None
+        
         while counter < len(values):
             # check the new element and modify the true elements in the window number if needed
             window_index = counter % window_size
@@ -72,14 +75,33 @@ class Analyzer:
             # check if end of wave detection
             if detection != None and a_wave_true_elements < min_a_wave_true_elements:
                 detection.append(times[counter - 1])
+                detection.append(min_pressure)
+                detection.append(max_pressure)
                 detections.append(detection)
                 Logger.debug("Analyzer: A-wave detection at [%s - %s].", detection[0], detection[1])
                 detection = None
-            # check if there is a wave detection
+            # check if there is a new wave detection
             elif detection == None and a_wave_true_elements >= min_a_wave_true_elements:
                 detection = []
                 # the starting time of the wave detection is the oldest element in the window
-                detection.append(times[counter - window_size + 1])
+                start_pos = counter - window_size + 1
+                detection.append(times[start_pos])
+                # calculates the min and max pressure values in the current window for plotting purposes
+                i = start_pos
+                min_pressure = values[start_pos]
+                max_pressure = values[start_pos]
+                while i < start_pos + window_size:
+                    i = i + 1
+                    if min_pressure > values[i]:
+                        min_pressure = values[i]
+                    elif max_pressure < values[i]:
+                        max_pressure = values[i]
+            # if there is a detection running save the min and max pressure values for plotting purposes
+            if detection != None:
+                if min_pressure > values[counter]:
+                    min_pressure = values[counter]
+                elif max_pressure < values[counter]:
+                    max_pressure = values[counter]
             counter = counter + 1
             
         Logger.debug("Analyzer: Analyzing process finished. %d A-wave detections found.", len(detections))
