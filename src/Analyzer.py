@@ -2,7 +2,7 @@ import time
 from kivy.logger import Logger
 
 # constants
-MIN_A_WAVE_DURATION = 10
+MIN_A_WAVE_DURATION = 2
 MIN_A_WAVE_PERCENTAGE = 0.9
 MIN_A_WAVE_PRESSURE_VALUE = 20
 
