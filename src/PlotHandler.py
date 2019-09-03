@@ -8,8 +8,8 @@ class PlotHandler:
     
     def getPlotTest(self, dataFrame):
         plt.plot(dataFrame["time"], dataFrame["value"], linewidth=0.5)
-        plt.xlabel("Hora")
-        plt.ylabel("Presión intracraneal")
+        plt.xlabel("Time")
+        plt.ylabel("Intracranial pressure")
         plt.grid()
         ax = plt.gca()
         ax.set(autoscale_on=False)

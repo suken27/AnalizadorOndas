@@ -30,7 +30,6 @@ class MainWidget(BoxLayout):
     
     loadFileButton = ObjectProperty(0)
     plotContainer = ObjectProperty(0)
-    drawButton = ObjectProperty(0)
     fig = None
     press = None
     
@@ -156,7 +155,6 @@ class MainWidget(BoxLayout):
             return
         
         Logger.debug("Event: Button motion event from mpl. x = %d, y = %d, button = %s", event.xdata, event.ydata, event.button)
-
         
         prevx, prevy = self.press
         difx = prevx - event.xdata
